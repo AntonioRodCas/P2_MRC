@@ -1,0 +1,134 @@
+/******************************************************************
+* Description
+*	This is a FSM for the MRC module
+* Inputs:
+*	clk
+* Outputs:
+* 	Data_Output: Output data
+*	1.0
+* Author:
+*	José Antonio Rodríguez Castañeda
+* email:
+*	md193781@iteso.mx
+* Date:
+*	11/10/2018
+******************************************************************/
+module FSM
+#(
+	parameter WORD_LENGTH = 32
+)
+(
+	input op,
+	input [WORD_LENGTH - 1 : 0] A0,
+	input [WORD_LENGTH - 1 : 0] A1,
+	
+	output [WORD_LENGTH - 1 : 0] Data_Output
+
+);
+
+//State machine states   ############TBD########
+localparam IDLE = 0;
+localparam LOAD = 1; 
+localparam SHIFT = 2; 
+localparam READY = 3; 
+
+reg [1:0]State;
+
+//Control Lines
+reg shift;
+reg load_Multiplier;			//Imp
+reg load_Data;					//Imp
+reg load_product;
+reg Sync_Reset;
+reg counter_enable;
+
+wire counter_flag;
+
+
+
+always@(posedge clk or negedge reset) begin
+	if (reset==0)
+		State <= IDLE;
+	else 
+		case(State)
+			IDLE:
+			if(start == 1 )
+				State <= LOAD;
+			else 
+				State <= IDLE;
+							
+			LOAD:
+				State <= SHIFT;
+					
+			SHIFT:
+				if(counter_flag)
+					State <= READY;
+				else
+					State <= SHIFT;
+					
+			READY:
+				State <= IDLE;
+					
+			default:
+				State <= IDLE;
+	endcase
+end
+
+
+always@(State) begin
+		case(State)
+			
+			IDLE:
+				begin
+					shift = 0;
+					load = 0;
+					load_product = 0;
+					Sync_Reset = 0;
+					ready = 0;
+					counter_enable=0;
+				end
+			LOAD:
+				begin 
+					shift = 0;
+					load = 1;
+					load_product = 1;
+					Sync_Reset = 0;
+					ready = 0;
+					counter_enable=0;				
+				end
+					
+			SHIFT:
+				begin
+					shift = 1;
+					load = 0;
+					load_product = 1;
+					Sync_Reset = 1;
+					ready = 0;
+					counter_enable=1;					
+				end
+			READY:
+				begin
+					shift = 0;
+					load = 0;
+					load_product = 0;
+					Sync_Reset = 0;
+					ready = 1;
+					counter_enable=0;	
+				end
+
+			default:
+				begin
+					shift = 0;
+					load = 0;
+					load_product = 0;
+					Sync_Reset = 0;
+					ready = 0;
+					counter_enable=0;
+				end
+		endcase
+end
+
+
+
+
+endmodule
