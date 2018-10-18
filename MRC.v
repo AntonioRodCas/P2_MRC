@@ -384,7 +384,7 @@ assign Result_Out[(WORD_LENGTH*2)-2:0] = (sign_result==0) ? Result_2C[(WORD_LENG
 
 // Error signals
 assign SQR_error = (op==1) ? Data_sign : 1'b0;
-assign Mult_error = (op==0) ? Result_2C[WORD_LENGTH*2] : 1'b0;
+assign Mult_error = (op==0) ? Result_2C[WORD_LENGTH] : 1'b0;
 
 assign error = SQR_error | Mult_error;
 

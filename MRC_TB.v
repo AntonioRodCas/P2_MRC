@@ -70,12 +70,12 @@ initial begin // start generator
 	#5 start_tb = 1;
 	#15 start_tb = 0;
 	#105 start_tb = 1;
-	//#15 start_tb = 0;
+	#15 start_tb = 0;
 end
 
 /*********************************************************/
 initial begin // op generator
-	#5 op_tb = 1;
+	#5 op_tb = 0;
 	//#15 start_tb = 0;
 	//#45 start_tb = 1;
 	//#15 start_tb = 0;
@@ -87,13 +87,14 @@ initial begin // load generator
 	#10 load_tb = 1;
 	#5 load_tb = 0;
 	#20 load_tb = 1;
+	#5 load_tb = 0;
 end
 /*********************************************************/
 
 /*********************************************************/
 initial begin // Data generator
-	#5 Data_tb = -200;
-	//#22 Data_tb = 3;
+	#5 Data_tb = 16387;
+	#22 Data_tb = 16387;
 end
 /*********************************************************/
 
