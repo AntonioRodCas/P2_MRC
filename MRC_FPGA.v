@@ -41,7 +41,9 @@ module MRC_FPGA
 	output [6:0] H,
 	output [6:0] T,
 	output [6:0] U,
-	output		 sign
+	output		 sign,
+	
+	output [WORD_LENGTH-1:0] Result_LED
 	
 );
 
@@ -51,6 +53,9 @@ wire ready_reg;
 wire load_debounce;
 wire start_neg;
 wire load_neg;
+
+
+assign Result_LED = Result_int[WORD_LENGTH-1:0];
 
 clk_gen
 clock_gen			   	//Clock Divider with PLL to generate 5MHz

@@ -75,7 +75,7 @@ localparam Q_SWS=19;
 localparam READY_L = 20;
 
 
-reg [4:0]State;
+reg [4:0]State /*synthesis keep*/ ;
 
 //Control Lines
 
