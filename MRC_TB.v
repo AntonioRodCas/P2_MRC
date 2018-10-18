@@ -50,7 +50,7 @@ SM_1
 	.Result(Result_tb),
 	.x(x_tb),
 	.y(y_tb),
-	.error(erro_tb)
+	.error(error_tb)
 
 );
 
@@ -92,8 +92,8 @@ end
 
 /*********************************************************/
 initial begin // Data generator
-	#5 Data_tb = 25;
-	//#22 Data_tb = 6;
+	#5 Data_tb = -200;
+	//#22 Data_tb = 3;
 end
 /*********************************************************/
 

@@ -22,7 +22,7 @@ module FSM
 	input start,
 	input clk,
 	input reset,
-	input [(WORD_LENGTH*2)-1:0]  Result,
+	input [(WORD_LENGTH*2):0]  Result,
 	input load,
 	
 	output reg flagx,
@@ -44,7 +44,8 @@ module FSM
 	output reg [1:0] R_in_MUX_control,
 	output reg [1:0] Q_or_MUX_control,
 	output reg load_Mult_sign,
-	output reg load_Data_sign
+	output reg load_Data_sign,
+	output reg ready_reg
 
 );
 
@@ -71,6 +72,7 @@ localparam Q_SLS= 16;
 localparam SHIFTSQ_W=17;
 localparam Q_SWA=18;
 localparam Q_SWS=19;
+localparam READY_L = 20;
 
 
 reg [4:0]State;
@@ -169,7 +171,7 @@ always@(posedge clk or negedge reset) begin
 			// --- Multiplication	
 			SHIFT:
 				if(counter_flag)
-					State <= READY;
+					State <= READY_L;
 				else
 					State <= SHIFT;
 					
@@ -184,7 +186,7 @@ always@(posedge clk or negedge reset) begin
 					State <= SHIFTSQ_W;
 			
 			SHIFTSQ_W:
-				if(Result[WORD_LENGTH])
+				if(Result[WORD_LENGTH*2])
 					State <= SUM_S;
 				else
 					State <= SUB_S;
@@ -202,13 +204,13 @@ always@(posedge clk or negedge reset) begin
 				State <= Q_SWS;
 			
 			Q_SWA:
-				if(Result[WORD_LENGTH])
+				if(Result[WORD_LENGTH*2])
 					State <= Q_SRN;
 				else
 					State <= Q_SRP;
 	
 			Q_SWS:
-				if(Result[WORD_LENGTH])
+				if(Result[WORD_LENGTH*2])
 					State <= Q_SRN;
 				else
 					State <= Q_SRP;
@@ -226,8 +228,10 @@ always@(posedge clk or negedge reset) begin
 					State <= SHIFTSQ;
 			
 			Q_L:
-				State <= READY;
+				State <= READY_L;
 			
+			READY_L:
+				State <= READY;
 					
 			default:
 				State <= IDLE;
@@ -256,6 +260,7 @@ always@(State) begin
 	load_Mult_sign = 0;
 	load_Data_sign = 0;
 	ready = 0;
+	ready_reg = 0;
 	counterDi_enable = 0;
 		case(State)
 			
@@ -420,7 +425,12 @@ always@(State) begin
 				begin
 					ready = 1;
 				end
-
+			
+			READY_L:
+				begin
+					ready_reg = 1;
+				end
+			
 			default:
 				begin
 					flagx = 0;

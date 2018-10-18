@@ -36,33 +36,33 @@ module MRC
 	output [(WORD_LENGTH*2)-1:0] Result,
 	output  x,
 	output  y,
-	output reg error
+	output error
 );
 
 
 //Output signals
 wire [(WORD_LENGTH*2)-1:0] Result_Out;
-wire ready_reg;
+wire ready_reg1;
 
 
 //Multiplier signals
-wire [(WORD_LENGTH*2)-1:0] result_temp;
-wire [(WORD_LENGTH*2)-1:0]  sum_one_reg;	//Imp
+wire [(WORD_LENGTH*2):0] result_temp;
+wire [(WORD_LENGTH*2):0]  sum_one_reg;	//Imp
 
 wire [WORD_LENGTH-1:0]  Data_reg;			//Imp
 wire [WORD_LENGTH-1:0]  multiplier_reg;	//Imp
 
 //Add/Sub signals
-wire [(WORD_LENGTH*2)-1:0] Add_input;     //Imp
-wire [(WORD_LENGTH*2)-1:0] Add_output;    //Imp
-wire [(WORD_LENGTH*2)-1:0] Sub_output;    //Imp
+wire [(WORD_LENGTH*2):0] Add_input;     //Imp
+wire [(WORD_LENGTH*2):0] Add_output;    //Imp
+wire [(WORD_LENGTH*2):0] Sub_output;    //Imp
 
 
 // Two's complement     ###########TBD
 wire sign_data;									//Imp
 wire sign_result;									//Imp
 wire [WORD_LENGTH-1:0]  Data_2C;        //Imp
-wire [(WORD_LENGTH*2)-1:0]  Result_2C;  //Imp
+wire [(WORD_LENGTH*2):0]  Result_2C;  //Imp
 
 wire Multiplier_sign;						//Imp
 wire Data_sign;								//Imp
@@ -85,17 +85,18 @@ wire shift;
 wire load_Data;								//Imp
 wire load_Mult_sign;							//Imp
 wire load_Data_sign;							//Imp
+wire ready_reg;
 
 
 
 
 // R/Q reg signals
-wire [(WORD_LENGTH*2)-1:0] R_input;   //Imp
-wire [(WORD_LENGTH*2)-1:0] R_shift;	  //Imp
-wire [(WORD_LENGTH*2)-1:0] Q_out;		//Imp
-wire [(WORD_LENGTH*2)-1:0] Q_OR_MUX;   //Imp
-wire [(WORD_LENGTH*2)-1:0] Q_shift;    //Imp
-wire [(WORD_LENGTH*2)-1:0] Result_MUX; //Imp
+wire [(WORD_LENGTH*2):0] R_input;   //Imp
+wire [(WORD_LENGTH*2):0] R_shift;	  //Imp
+wire [(WORD_LENGTH*2):0] Q_out;		//Imp
+wire [(WORD_LENGTH*2):0] Q_OR_MUX;   //Imp
+wire [(WORD_LENGTH*2):0] Q_shift;    //Imp
+wire [(WORD_LENGTH*2):0] Result_MUX; //Imp
 
 // Error signals
 
@@ -146,7 +147,7 @@ SR_DATA_MULTIPLICAND					//Multiplicand/Data shift register
 
 shift_registerRQ
 #(
-	.WORD_LENGTH((WORD_LENGTH*2)),
+	.WORD_LENGTH((WORD_LENGTH*2)+1),
 	.SHIFT_LR(0)
 ) 
 Accumulator		   	        //Register with sync reset and shift for Accumulator
@@ -165,7 +166,7 @@ Accumulator		   	        //Register with sync reset and shift for Accumulator
 
 shift_registerRQ
 #(
-	.WORD_LENGTH((WORD_LENGTH*2)),
+	.WORD_LENGTH((WORD_LENGTH*2)+1),
 	.SHIFT_LR(0)
 ) 
 Q_reg		   	        //Register with sync reset and shift for Q
@@ -236,8 +237,8 @@ Mux2to1
 Out_in_MUX		   	        //Output MUX for select Multiplication or SQR
 (
 	.Selector(op),    
-	.MUX_Data0(Result_Out),
-	.MUX_Data1(Q_out),					 
+	.MUX_Data0(Result_Out[(WORD_LENGTH*2)-1:0]),
+	.MUX_Data1(Q_out[(WORD_LENGTH*2)-1:0]),					 
 	
 	.MUX_Output(Result_MUX)			
 
@@ -246,7 +247,7 @@ Out_in_MUX		   	        //Output MUX for select Multiplication or SQR
 
 Mux2to1
 #(
-	.WORD_LENGTH((WORD_LENGTH*2))
+	.WORD_LENGTH((WORD_LENGTH*2)+1)
 ) 
 Add_in_MUX		   	        //Add input MUX
 (
@@ -260,7 +261,7 @@ Add_in_MUX		   	        //Add input MUX
 
 Mux3to1
 #(
-	.WORD_LENGTH((WORD_LENGTH*2))
+	.WORD_LENGTH((WORD_LENGTH*2)+1)
 ) 
 R_in_MUX		   	        //R input MUX
 (
@@ -275,14 +276,14 @@ R_in_MUX		   	        //R input MUX
 
 Mux3to1
 #(
-	.WORD_LENGTH((WORD_LENGTH*2))
+	.WORD_LENGTH((WORD_LENGTH*2)+1)
 ) 
 Q_or_MUX		   	        //Q or MUX
 (
 	.Selector(Q_or_MUX_control),       //-----missing
-	.MUX_Data0({{(WORD_LENGTH*2-1) {1'b0}},1'b0}),				  
-	.MUX_Data1({{(WORD_LENGTH*2-1) {1'b0}},1'b1}),		
-   .MUX_Data2({{(WORD_LENGTH*2-2) {1'b0}},2'b11}),			  
+	.MUX_Data0({{(WORD_LENGTH*2) {1'b0}},1'b0}),				  
+	.MUX_Data1({{(WORD_LENGTH*2) {1'b0}},1'b1}),		
+   .MUX_Data2({{(WORD_LENGTH*2-1) {1'b0}},2'b11}),			  
 	
 	.MUX_Output(Q_OR_MUX)					
 
@@ -292,7 +293,7 @@ Q_or_MUX		   	        //Q or MUX
 //----------- ADD/SUB implementation 
 add_sub
 #(
-	.WORD_LENGTH((WORD_LENGTH*2))
+	.WORD_LENGTH((WORD_LENGTH*2)+1)
 ) 
 Adder				   	        //Adder module
 (
@@ -306,7 +307,7 @@ Adder				   	        //Adder module
 
 add_sub
 #(
-	.WORD_LENGTH((WORD_LENGTH*2))
+	.WORD_LENGTH((WORD_LENGTH*2)+1)
 ) 
 Sub				   	        //Sub module
 (
@@ -335,7 +336,7 @@ Main_FSM		   	        //Finite State Machine
 
 	.flagx(x),
 	.flagy(y),
-	.ready(ready_reg),
+	.ready(ready_reg1),
 	
 	.load_Multiplier(load_Multiplier),
 	.load_Data(load_Data),
@@ -352,7 +353,8 @@ Main_FSM		   	        //Finite State Machine
 	.R_in_MUX_control(R_in_MUX_control),
 	.Q_or_MUX_control(Q_or_MUX_control),
 	.load_Mult_sign(load_Mult_sign),
-	.load_Data_sign(load_Data_sign)
+	.load_Data_sign(load_Data_sign),
+	.ready_reg(ready_reg)
 	
 );
 
@@ -361,13 +363,13 @@ Main_FSM		   	        //Finite State Machine
 // Assignation sentences
 
 //----Output
-assign ready = ready_reg;
+assign ready = ready_reg1;
 
 //----Multiplicand MUX
-assign sum_one_reg = (multiplier_reg[0]==1) ? {{(WORD_LENGTH-1) {1'b0}} ,Data_reg} : {((WORD_LENGTH*2)-1) {1'b0}};  //Imp
+assign sum_one_reg = (multiplier_reg[0]==1) ? {{(WORD_LENGTH+1) {1'b0}} ,Data_reg} : {((WORD_LENGTH*2)+1) {1'b0}};  //Imp
 
 //----R/Q OR signals
-assign R_shift = Result_2C | {{(WORD_LENGTH-1) {1'b0}} ,Data_reg};   //Imp
+assign R_shift = Result_2C | {{(WORD_LENGTH+1) {1'b0}} ,Data_reg};   //Imp
 assign Q_shift = Q_out | Q_OR_MUX;												//Imp
 
 
@@ -378,10 +380,12 @@ assign Data_2C = (Data[WORD_LENGTH-1]==0) ? Data : (~Data + 1'b1);   //Imp
 
 assign sign_result = (Multiplier_sign | Data_sign);
 assign Result_Out[(WORD_LENGTH*2)-1] = sign_result;
-assign Result_Out[(WORD_LENGTH*2)-2:0] = (sign_result==0) ? Result_2C : (~Result_2C + 1'b1);
+assign Result_Out[(WORD_LENGTH*2)-2:0] = (sign_result==0) ? Result_2C[(WORD_LENGTH*2)-1:0] : (~Result_2C[(WORD_LENGTH*2)-2:0] + 1'b1);
 
 // Error signals
 assign SQR_error = (op==1) ? Data_sign : 1'b0;
+assign Mult_error = (op==0) ? Result_2C[WORD_LENGTH*2] : 1'b0;
 
+assign error = SQR_error | Mult_error;
 
 endmodule

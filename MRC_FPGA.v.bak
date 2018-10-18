@@ -1,0 +1,72 @@
+ /*********************************************************
+ * Description:
+ * Aritmetic module integration on a FPGA
+ * 	Inputs:
+ *			start: 			Start input signal
+ *			load:				Load data into the module input signal
+ *			Data: 			Input data
+ *			op:				Operation selector input
+ *			clk:				Clock input data
+ *			reset:			Asyncronous reset input data
+ *		Outputs:
+ *			ready: 			Ready output flag signal
+ *			Result: 			Result output data
+ *			x:					Ready to receive x data flag
+ *			y:					Ready to receive y data flag
+ *			error:			Error flag signal
+ *
+ *	Author:  Antonio Rodríguez    md193781   ITESO 
+ *	Date:    11/10/18
+ *
+ **********************************************************/
+module MRC_FGPGA
+#(
+	parameter WORD_LENGTH = 16								//Input parameter definition
+)
+
+(	
+	input start,
+	input load,	
+	input [WORD_LENGTH-1:0] Data,
+	input op,
+	input clk,
+	input reset,
+	
+	output ready,
+	//output [(WORD_LENGTH*2)-1:0] Result,
+	output  x,
+	output  y,
+	output error
+	
+	output [6:0] H,
+	output [6:0] T,
+	output [6:0] U,
+	output		 sign
+	
+);
+
+wire Five_MEG_clk;
+wire [(WORD_LENGTH*2)-1:0] Result_int;
+
+
+MRC
+#(
+	.WORD_LENGTH(WORD_LENGTH)
+) 
+MRC_module			   	//Multiplier and SQR module implementation
+(
+	.start(start),
+	.load(load),
+	.Data(Data),
+	.op(op),
+	.clk(Five_MEG_clk),
+	.reset(reset),
+	
+	.ready(ready),
+	.x(x),
+	.y(y),
+	.error(error),
+	.Result(Result_int)
+
+);
+
